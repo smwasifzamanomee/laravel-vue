@@ -31,7 +31,7 @@
         <!-- partial:partials/_navbar.html -->
         @include('admin.navbar')
         <!-- partial -->
-        @include('admin.body')
+        @yield('content')
         <!-- main-panel ends -->
       </div>
       <!-- page-body-wrapper ends -->

@@ -1,5 +1,5 @@
 @extends('admin.layout')
 
 @section('content')
-  @include('admin.category.categoryList')
+    @include('admin.product.productList')
 @endsection
