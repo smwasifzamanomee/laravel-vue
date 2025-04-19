@@ -21,3 +21,8 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index');
+Route::get('/category', 'Admin\Category\CategoryController@index');
+Route::post('/category/store', 'Admin\Category\CategoryController@store')->name('category.store');
+Route::get('/category/delete/{id}', 'Admin\Category\CategoryController@destroy')->name('category.delete');
+Route::get('/category/edit/{id}', 'Admin\Category\CategoryController@edit')->name('category.edit');
+Route::post('/category/update', 'Admin\Category\CategoryController@update')->name('category.update');
