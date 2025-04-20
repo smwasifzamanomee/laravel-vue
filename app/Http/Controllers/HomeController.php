@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\Admin\Product;
 
 class HomeController extends Controller
 {
@@ -34,8 +35,9 @@ class HomeController extends Controller
             return view('admin.dashboard');
         }
         else {
+            $products = Product::orderBy('id', 'desc')->get();
             // Redirect to the user dashboard
-            return view('home.index');
+            return view('home.index', compact('products'));
         }
     }
 }

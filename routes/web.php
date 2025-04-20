@@ -14,9 +14,7 @@ use App\Http\Controllers\HomeController;
 |
 */
 
-Route::get('/', function () {
-    return view('home.index');
-});
+Route::get('/', 'Home\Product\ProductController@index');
 
 Auth::routes();
 
