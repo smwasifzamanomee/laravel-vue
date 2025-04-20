@@ -18,6 +18,11 @@
     <div class="content-wrapper">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h1>Edit Product</h1>
+            @if($product->image)
+                <div class="mt-2">
+                    <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" width="100">
+                </div>
+            @endif
         </div>
         @if($errors->any())
             <div class="alert alert-danger">
@@ -51,7 +56,8 @@
                 </div>
                 <div class="col-md-3">
                     <label for="image" class="form-label">Image</label>
-                    <input type="file" name="image" class="form-control" placeholder="Enter Image">
+                    <input type="file" name="image" class="form-control">
+                    
                 </div>
                 <div class="col-12 mt-3">
                     <label for="description" class="form-label">Description</label>

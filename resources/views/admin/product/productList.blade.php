@@ -47,7 +47,7 @@
                         <td>{{ $product->category->name }}</td>
                         <td>
                             @if($product->image)
-                                <img src="{{ url('storage/app/public/'.$product->image) }}" alt="product->image" width="100">
+                                <img src="{{ url('storage/'.$product->image) }}" alt="product->image" width="100" height="100">
                             @else
                                 No Image
                             @endif
