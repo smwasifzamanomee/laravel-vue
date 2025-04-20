@@ -17,7 +17,7 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h1>Product List</h1>
             <!-- Add Product Button -->
-            <a href="{{ route('product.create') }}" class="btn btn-success">Add Product</a>
+            <a href="{{ route('products.create') }}" class="btn btn-success">Add Product</a>
         </div>
 
         <table class="table table-bordered">
@@ -25,10 +25,45 @@
                 <tr>
                     <th>ID</th>
                     <th>Name</th>
+                    <th>Category</th>
+                    <th>Image</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Status</th>
+                    <th>Featured</th>
+                    <th>Popular</th>
                     <th>Action</th>
                 </tr>
             </thead>
-            <tbody>             
+            <tbody>   
+                @php
+                    $i = 1;
+                @endphp
+                @foreach ($products as $product)
+                    <tr>
+                        <td>{{ $i++ }}</td>
+                        <td>{{ $product->name }}</td>
+                        <td>{{ $product->category->name }}</td>
+                        <td>
+                            @if($product->image)
+                                <img src="{{ url('storage/app/public/'.$product->image) }}" alt="product->image" width="100">
+                            @else
+                                No Image
+                            @endif
+                        </td>
+                        <td>{{ $product->description }}</td>
+                        <td>{{ $product->price }}</td>
+                        <td>{{ $product->quantity }}</td>
+                        <td>{{ $product->status }}</td>
+                        <td>{{ $product->featured }}</td>
+                        <td>{{ $product->popular }}</td>
+                        <td>
+                            <a href="{{ url('products/edit/'.$product->id) }}" class="btn btn-primary">Edit</a>
+                            <a href="{{ url('products/delete/'.$product->id) }}" class="btn btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                @endforeach          
             </tbody>
         </table>
     </div>

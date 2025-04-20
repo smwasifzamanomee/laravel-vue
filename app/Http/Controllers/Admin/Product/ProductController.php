@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Admin\Product;
 use App\Models\Admin\Category;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
@@ -17,7 +19,7 @@ class ProductController extends Controller
     }
     public function index()
     {
-        $products = Product::all();
+        $products = Product::orderBy('id', 'desc')->get();
         return view('admin.product.index', compact('products'));
     }
     public function create()
@@ -28,22 +30,90 @@ class ProductController extends Controller
     }
     public function store(Request $request)
     {
-        // Validate the request data
+        // Use Validator for manual validation
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|max:255',
+            'price' => 'required|numeric',
+            'category_id' => 'required|exists:categories,id',
+            'description' => 'required',
+            // 'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'quantity' => 'required|numeric',
+            'discount_price' => 'required|numeric',
+            'status' => 'required',
+            'featured' => 'required',
+            'popular' => 'required'
+        ]);
+    
+        // Check for validation failure
+        if ($validator->fails()) {
+            return redirect()->back()
+                             ->withErrors($validator)
+                             ->withInput();
+        }
+    
+        // Get validated data
+        $validatedData = $validator->validated();
+    
+        // Store image
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('images', 'public');
+            $validatedData['image'] = $imagePath;
+        }
+    
+        // Save product
+        Product::create($validatedData);
+    
+        return redirect()->back()->with('message', 'Product created successfully.');
+    }
+
+    public function edit($id)
+    {
+        $product = Product::findOrFail($id);
+        $categories = Category::all();
+        return view('admin.product.productEdit', compact('product', 'categories'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        // dd($request->all());
+
         $request->validate([
             'name' => 'required|max:255',
             'price' => 'required|numeric',
             'category_id' => 'required|exists:categories,id',
-            // Add other validation rules as needed
+            'description' => 'required',
+            'quantity' => 'required|numeric',
+            'discount_price' => 'required|numeric',
+            'status' => 'required',
+            'featured' => 'required',
+            'popular' => 'required',
         ]);
 
-        // Create a new product
-        $product = new Product();
+        $product = Product::findOrFail($id);
         $product->name = $request->name;
         $product->price = $request->price;
         $product->category_id = $request->category_id;
-        // Add other product attributes as needed
+        $product->description = $request->description;
+        $product->quantity = $request->quantity;
+        $product->discount_price = $request->discount_price;
+        $product->status = $request->status;
+        $product->featured = $request->featured;
+        $product->popular = $request->popular;
+
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('images', 'public');
+            $product->image = $imagePath;
+        }
+
         $product->save();
-        // Redirect back with a success message
-        return redirect()->back()->with('message', 'Product created successfully.');
+
+        return redirect()->back()->with('message', 'Product updated successfully.');
+    }
+
+    public function destroy($id)
+    {
+        $product = Product::findOrFail($id);
+        $product->delete();
+        return redirect()->back()->with('message', 'Product deleted successfully.');
     }
 }

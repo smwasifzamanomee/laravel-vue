@@ -27,6 +27,11 @@ Route::get('/category/delete/{id}', 'Admin\Category\CategoryController@destroy')
 Route::get('/category/edit/{id}', 'Admin\Category\CategoryController@edit')->name('category.edit');
 Route::post('/category/update', 'Admin\Category\CategoryController@update')->name('category.update');
 
-Route::get('/product', 'Admin\Product\ProductController@index');
-Route::get('/product/create', 'Admin\Product\ProductController@create')->name('product.create');
-Route::post('/product/store', 'Admin\Product\ProductController@store')->name('product.store');
+Route::get('/products', 'Admin\Product\ProductController@index');
+Route::get('/products/create', 'Admin\Product\ProductController@create')->name('products.create');
+Route::post('/products/store', 'Admin\Product\ProductController@store')->name('products.store');
+Route::get('/products/edit/{id}', 'Admin\Product\ProductController@edit')->name('products.edit');
+Route::post('/products/update/{id}', 'Admin\Product\ProductController@update')->name('products.update');
+Route::get('/products/delete/{id}', 'Admin\Product\ProductController@destroy')->name('products.delete');
+
+// Route::resources('product', 'Admin\Product\ProductController');

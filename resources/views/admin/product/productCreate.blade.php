@@ -21,14 +21,34 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h1>Add Product</h1>
         </div>
-        <form class="row g-3">
+        {{-- ✅ Show all validation errors --}}
+        @if($errors->any())
+            <div class="alert alert-danger">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">x</button>
+                <ul class="mb-0">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        {{-- ✅ Show success message --}}
+        @if(session('message'))
+            <div class="alert alert-success" >
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">x</button>
+                {{ session('message') }}
+            </div>
+        @endif
+        <form class="row g-3" action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
             <div class="col-md-6">
                 <label for="inputName" class="form-label">Name</label>
                 <input type="text" name="name" class="form-control" placeholder="Enter Product Name" required>
             </div>
             <div class="col-md-3">
                 <label for="inputCategory" class="form-label">Category</label>            
-                <select class="js-example-basic-multiple form-control" name="categories">
+                <select class="js-example-basic-multiple form-control" name="category_id" required>
                     @foreach($categories as $key => $category)
                         <option value="{{ $category->id }}">{{ $category->name }}</option>
                     @endforeach
@@ -36,7 +56,7 @@
             </div>
             <div class="col-md-3">
                 <label for="inputImage" class="form-label">Image</label>
-                <input type="file" name="image" class="form-control" placeholder="Enter Image" required>
+                <input type="file" name="image" class="form-control" placeholder="Enter Image">
             </div>
 
             <div class="col-12 mt-3">
@@ -57,16 +77,31 @@
             </div>
             <div class="col-md-4 mt-3">
                 <label for="inputStatus" class="form-label">Status</label>
-                <input type="text" name="status" class="form-control" placeholder="Enter Status" required>
+                <select name="status" id="inputStatus" class="form-select form-control" required>
+                    <option value="">Select Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
             </div>
+
             <div class="col-md-4 mt-3">
                 <label for="inputFeatured" class="form-label">Featured</label>
-                <input type="text" name="featured" class="form-control" placeholder="Enter Featured" required>
+                <select name="featured" id="inputFeatured" class="form-select form-control" required>
+                    <option value="">Select Featured</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
             </div>
+
             <div class="col-md-4 mt-3">
                 <label for="inputPopular" class="form-label">Popular</label>
-                <input type="text" name="popular" class="form-control" placeholder="Enter Popular" required>
+                <select name="popular" id="inputPopular" class="form-select form-control" required>
+                    <option value="">Select Popular</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
             </div>
+
             <div class="col-12 mt-3">
                 <button type="submit" class="btn btn-primary"> + Add Product</button>
             </div>
