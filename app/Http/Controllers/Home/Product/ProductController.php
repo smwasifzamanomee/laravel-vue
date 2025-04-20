@@ -8,10 +8,11 @@ use App\Models\Admin\Product;
 
 class ProductController extends Controller
 {
-    //
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::orderBy('id', 'desc')->get();
+        $perPage = $request->input('per_page', 3); // Default to 10 items per page
+        $products = Product::orderBy('id', 'desc')->paginate($perPage);
+        
         return view('home.index', compact('products'));
     }
 }

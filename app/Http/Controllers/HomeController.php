@@ -35,7 +35,9 @@ class HomeController extends Controller
             return view('admin.dashboard');
         }
         else {
-            $products = Product::orderBy('id', 'desc')->get();
+            $perPage = $request->input('per_page', 3); // Default to 10 items per page
+            $products = Product::orderBy('id', 'desc')->paginate($perPage);
+
             // Redirect to the user dashboard
             return view('home.index', compact('products'));
         }
