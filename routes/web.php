@@ -19,6 +19,10 @@ Route::get('/', 'Home\Product\ProductController@index');
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/cart', 'Home\Cart\CartController@index')->name('cart.index');
     Route::get('/cart/add/{id}', 'Home\Cart\CartController@add')->name('cart.add');
+    Route::post('/cart/increase/{id}', 'Home\Cart\CartController@increase')->name('cart.increase');
+    Route::post('/cart/decrease/{id}', 'Home\Cart\CartController@decrease')->name('cart.decrease');
+    Route::get('/cart/delete/{id}', 'Home\Cart\CartController@delete')->name('cart.delete');
+    Route::post('/cart/checkout', 'Home\Cart\CartController@checkout')->name('cart.checkout');
 });
 
 Auth::routes();
