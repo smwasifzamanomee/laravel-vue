@@ -16,6 +16,11 @@ use App\Http\Controllers\HomeController;
 
 Route::get('/', 'Home\Product\ProductController@index');
 
+Route::group(['middleware' => 'auth'], function () {
+    Route::get('/cart', 'Home\Cart\CartController@index')->name('cart.index');
+    Route::get('/cart/add/{id}', 'Home\Cart\CartController@add')->name('cart.add');
+});
+
 Auth::routes();
 
 Route::get('/home', 'HomeController@index');

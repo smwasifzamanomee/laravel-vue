@@ -14,8 +14,8 @@
                                     <!-- category name need but i have category id -->
                                     {{ $product->category->name }}
                                 </a>
-                                <a href="" class="option2">
-                                    Buy Now
+                                <a href="javascript:void(0);" class="option2 add-to-cart" data-id="{{ $product->id }}">
+                                    Add To Cart
                                 </a>
                             </div>
                         </div>
@@ -94,48 +94,72 @@
         pointer-events: none;
         cursor: not-allowed;
     }
+    .add-to-cart.disabled {
+        pointer-events: none;
+        opacity: 0.6;
+        cursor: not-allowed;
+    }   
 </style>
-
-<!-- pagination script not go to top -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    $(document).ready(function() {
-        // Add click event handler to pagination links
-        $('.pagination li a').on('click', function(e) {
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+        button.addEventListener('click', function (e) {
             e.preventDefault();
-            var page = $(this).attr('href');
-            window.location.href = page;
-        });
-    });
-    // Handle per_page select change
-    $('#per_page').change(function() {
-        loadProducts($(this).val(), 1);
-    });
-    // Handle pagination clicks
-    $(document).on('click', '.pagination a', function(e) {
-        e.preventDefault();
-        var page = $(this).attr('href').split('page=')[1];
-        var perPage = $('#per_page').val();
-        loadProducts(perPage, page);
-    });
+            const productId = this.getAttribute('data-id');
 
-    function loadProducts(perPage, page) {
-        $.ajax({
-            url: '{{ url()->current() }}',
-            type: 'GET',
-            data: {
-                per_page: perPage,
-                page: page
-            },
-            success: function(data) {
-                // Replace only the products container
-                $('#products-container').html(
-                    $(data).find('#products-container').html()
-                );
-                
-                // Update the URL without reloading
-                history.pushState(null, null, '?per_page=' + perPage + '&page=' + page);
-            }
+            if (this.classList.contains('disabled')) return;
+
+            const originalText = this.innerText;
+            this.innerText = 'Adding...';
+            this.disabled = true;
+
+            fetch(`/cart/add/${productId}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                },
+                credentials: 'include'
+            })
+            .then(res => {
+                if (res.status === 401) {
+                    window.location.href = '/login/?next=' + encodeURIComponent(window.location.pathname);
+                    return;
+                }
+                if (!res.ok) throw new Error('Network response was not ok');
+                return res.json();
+            })
+            .then(data => {
+                if (!data) return;
+
+                const cartCountEl = document.querySelector('.cart-count');
+                if (cartCountEl && data.cart_count !== undefined) {
+                    cartCountEl.textContent = data.cart_count;
+                    cartCountEl.style.display = 'inline-block';
+                }
+
+                if (data.status === 'success') {
+                    this.innerText = 'Added!';
+                    this.classList.add('disabled');
+                    this.disabled = true;
+                } else if (data.status === 'error') {
+                    this.innerText = 'Already Added';
+                    this.classList.add('disabled');
+                    this.disabled = true;
+                }
+
+                console.log('Cart response:', data);
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                this.innerText = 'Error!';
+                setTimeout(() => {
+                    this.innerText = originalText;
+                    this.disabled = false;
+                }, 1000);
+            });
         });
-    }
+    });
+});
 </script>
+

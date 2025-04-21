@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Admin\Product;
+use Session;
 
 class HomeController extends Controller
 {
@@ -25,7 +26,7 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index()
+    public function index(Request $request)
     {
         // Fetch the authenticated user
         $usertype = Auth::user()->usertype;
@@ -37,9 +38,10 @@ class HomeController extends Controller
         else {
             $perPage = $request->input('per_page', 3); // Default to 10 items per page
             $products = Product::orderBy('id', 'desc')->paginate($perPage);
+            $cart = Session::get('cart');
 
             // Redirect to the user dashboard
-            return view('home.index', compact('products'));
+            return view('home.index', compact('products', 'cart'));
         }
     }
 }
