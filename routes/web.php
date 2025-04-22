@@ -23,6 +23,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/cart/decrease/{id}', 'Home\Cart\CartController@decrease')->name('cart.decrease');
     Route::get('/cart/delete/{id}', 'Home\Cart\CartController@delete')->name('cart.delete');
     Route::post('/cart/checkout', 'Home\Cart\CartController@checkout')->name('cart.checkout');
+    Route::get('/about', 'Home\Cart\CartController@about')->name('cart.about');
 });
 
 Auth::routes();

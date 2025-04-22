@@ -127,4 +127,9 @@ class CartController extends Controller
             return redirect()->back()->with('error', 'Something went wrong: ' . $e->getMessage());
         }
     }
+
+    public function about(){
+        $data = Product::all();
+        return view('home.about', compact('data'));
+    }
 }
