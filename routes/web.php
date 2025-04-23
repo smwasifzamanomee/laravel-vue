@@ -30,7 +30,7 @@ Auth::routes();
 Route::get('/about', 'Home\Cart\CartController@about')->name('cart.about');
 
 Route::get('/home', 'HomeController@index')->name('home');
-Route::get('/category', 'Admin\Category\CategoryController@index');
+Route::get('/category', 'Admin\Category\CategoryController@index')->name('category.index');
 Route::post('/category/store', 'Admin\Category\CategoryController@store')->name('category.store');
 Route::get('/category/delete/{id}', 'Admin\Category\CategoryController@destroy')->name('category.delete');
 Route::get('/category/edit/{id}', 'Admin\Category\CategoryController@edit')->name('category.edit');
