@@ -5353,11 +5353,17 @@ var render = function render() {
     staticClass: "text-center"
   }, [_vm._m(0)]) : _c("table", {
     staticClass: "table table-bordered"
-  }, [_vm._m(1), _vm._v(" "), _c("tbody", _vm._l(_vm.order_items, function (item) {
+  }, [_vm._m(1), _vm._v(" "), _c("tbody", [_vm._l(_vm.order_items, function (item) {
     return _c("tr", {
       key: item.id
-    }, [_c("td", [_vm._v(_vm._s(item.product.name))]), _vm._v(" "), _c("td", [_vm._v(_vm._s(item.quantity))]), _vm._v(" "), _c("td", [_vm._v(_vm._s(item.price))])]);
-  }), 0)])]), _vm._v(" "), _c("div", {
+    }, [_c("td", [_vm._v(_vm._s(item.product.name))]), _vm._v(" "), _c("td", [_vm._v(_vm._s(item.quantity))]), _vm._v(" "), _c("td", [_vm._v(_vm._s(item.price))]), _vm._v(" "), _c("td", [_vm._v(_vm._s(item.quantity * item.price))])]);
+  }), _vm._v(" "), _c("tr", [_c("td", {
+    staticClass: "text-right"
+  }, [_vm._v("Total :")]), _vm._v(" "), _c("td", [_vm._v(_vm._s(_vm.order_items.reduce(function (acc, item) {
+    return acc + item.quantity;
+  }, 0)))]), _vm._v(" "), _c("td"), _vm._v(" "), _c("td", [_vm._v(_vm._s(_vm.order_items.reduce(function (acc, item) {
+    return acc + item.quantity * item.price;
+  }, 0)))])])], 2)])]), _vm._v(" "), _c("div", {
     staticClass: "modal-footer"
   }, [_c("button", {
     staticClass: "btn btn-secondary",
@@ -5385,7 +5391,7 @@ var staticRenderFns = [function () {
 }, function () {
   var _vm = this,
     _c = _vm._self._c;
-  return _c("thead", [_c("tr", [_c("th", [_vm._v("Product")]), _vm._v(" "), _c("th", [_vm._v("Quantity")]), _vm._v(" "), _c("th", [_vm._v("Price")])])]);
+  return _c("thead", [_c("tr", [_c("th", [_vm._v("Product")]), _vm._v(" "), _c("th", [_vm._v("Quantity")]), _vm._v(" "), _c("th", [_vm._v("Price")]), _vm._v(" "), _c("th", [_vm._v("Total")])])]);
 }];
 render._withStripped = true;
 
