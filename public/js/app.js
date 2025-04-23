@@ -5112,98 +5112,41 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var _OrderModal_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./OrderModal.vue */ "./resources/js/components/OrderModal.vue");
-function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
-function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
-function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
-function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_1__);
+
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   data: function data() {
     return {
+      orders: {
+        data: [],
+        current_page: 1,
+        from: 1,
+        last_page: 1,
+        per_page: 5,
+        total: 0
+      },
       order_items: [],
       modalShow: false,
       loading: false,
       searchQuery: '',
       priceFilter: '',
       quantityFilter: '',
-      currentPage: 1,
       perPage: 5
     };
   },
   components: {
     OrderModal: _OrderModal_vue__WEBPACK_IMPORTED_MODULE_0__["default"]
   },
-  props: {
-    order_lists: {
-      type: Array,
-      required: true
-    }
+  created: function created() {
+    this.fetchOrders();
   },
   computed: {
-    filteredOrders: function filteredOrders() {
-      var filtered = this.order_lists;
-
-      // Apply search filter
-      if (this.searchQuery) {
-        var query = this.searchQuery.toLowerCase();
-        filtered = filtered.filter(function (order) {
-          var _order$user, _order$user2, _order$user3;
-          return ((_order$user = order.user) === null || _order$user === void 0 || (_order$user = _order$user.name) === null || _order$user === void 0 ? void 0 : _order$user.toLowerCase().includes(query)) || ((_order$user2 = order.user) === null || _order$user2 === void 0 || (_order$user2 = _order$user2.phone) === null || _order$user2 === void 0 ? void 0 : _order$user2.includes(query)) || ((_order$user3 = order.user) === null || _order$user3 === void 0 || (_order$user3 = _order$user3.address) === null || _order$user3 === void 0 ? void 0 : _order$user3.toLowerCase().includes(query)) || order.id.toString().includes(query);
-        });
-      }
-
-      // Apply price filter
-      if (this.priceFilter) {
-        var _this$priceFilter$spl = this.priceFilter.split('-').map(Number),
-          _this$priceFilter$spl2 = _slicedToArray(_this$priceFilter$spl, 2),
-          min = _this$priceFilter$spl2[0],
-          max = _this$priceFilter$spl2[1];
-        if (this.priceFilter.endsWith('+')) {
-          filtered = filtered.filter(function (order) {
-            return order.total_price >= min;
-          });
-        } else {
-          filtered = filtered.filter(function (order) {
-            return order.total_price >= min && order.total_price <= max;
-          });
-        }
-      }
-
-      // Apply quantity filter
-      if (this.quantityFilter) {
-        var _this$quantityFilter$ = this.quantityFilter.split('-').map(Number),
-          _this$quantityFilter$2 = _slicedToArray(_this$quantityFilter$, 2),
-          _min = _this$quantityFilter$2[0],
-          _max = _this$quantityFilter$2[1];
-        if (this.quantityFilter.endsWith('+')) {
-          filtered = filtered.filter(function (order) {
-            return order.total_quantity >= _min;
-          });
-        } else {
-          filtered = filtered.filter(function (order) {
-            return order.total_quantity >= _min && order.total_quantity <= _max;
-          });
-        }
-      }
-      return filtered;
-    },
-    paginatedOrders: function paginatedOrders() {
-      var start = (this.currentPage - 1) * this.perPage;
-      var end = start + this.perPage;
-      return this.filteredOrders.slice(start, end);
-    },
-    totalPages: function totalPages() {
-      return Math.ceil(this.filteredOrders.length / this.perPage);
-    },
     pages: function pages() {
       var pages = [];
-      // Show up to 5 page buttons around current page
-      var start = Math.max(1, this.currentPage - 2);
-      var end = Math.min(this.totalPages, start + 4);
-
-      // Adjust if we're near the start
+      var start = Math.max(1, this.orders.current_page - 2);
+      var end = Math.min(this.orders.last_page, start + 4);
       if (end - start < 4 && start > 1) {
         start = Math.max(1, end - 4);
       }
@@ -5214,28 +5157,51 @@ function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
     }
   },
   methods: {
-    onClickShowDetails: function onClickShowDetails(id) {
+    fetchOrders: function fetchOrders() {
       var _this = this;
       this.loading = true;
-      this.modalShow = true;
-
-      // Fetch order items for this order ID
-      axios.get("/orders/items/".concat(id)).then(function (response) {
-        _this.order_items = response.data;
+      var params = {
+        page: this.orders.current_page,
+        per_page: this.perPage,
+        search: this.searchQuery,
+        price_filter: this.priceFilter,
+        quantity_filter: this.quantityFilter
+      };
+      axios.get('/order', {
+        params: params
+      }).then(function (response) {
+        _this.orders = response.data;
         _this.loading = false;
       })["catch"](function (error) {
-        console.error("Error fetching order items:", error);
+        console.error("Error fetching orders:", error);
         _this.loading = false;
       });
     },
-    resetPagination: function resetPagination() {
-      this.currentPage = 1;
-    }
+    onClickShowDetails: function onClickShowDetails(id) {
+      var _this2 = this;
+      this.loading = true;
+      this.modalShow = true;
+      axios.get("/orders/items/".concat(id)).then(function (response) {
+        _this2.order_items = response.data;
+        _this2.loading = false;
+      })["catch"](function (error) {
+        console.error("Error fetching order items:", error);
+        _this2.loading = false;
+      });
+    },
+    changePage: function changePage(page) {
+      if (page >= 1 && page <= this.orders.last_page) {
+        this.orders.current_page = page;
+        this.fetchOrders();
+      }
+    },
+    debouncedSearch: lodash__WEBPACK_IMPORTED_MODULE_1___default().debounce(function () {
+      this.fetchOrders();
+    }, 500)
   },
   watch: {
-    currentPage: function currentPage(newVal) {
-      if (newVal < 1) this.currentPage = 1;
-      if (newVal > this.totalPages) this.currentPage = this.totalPages;
+    perPage: function perPage() {
+      this.fetchOrders();
     }
   }
 });
@@ -5374,7 +5340,7 @@ var render = function render() {
       input: [function ($event) {
         if ($event.target.composing) return;
         _vm.searchQuery = $event.target.value;
-      }, _vm.resetPagination]
+      }, _vm.debouncedSearch]
     }
   })]), _vm._v(" "), _c("div", {
     staticClass: "col-md-3"
@@ -5395,7 +5361,7 @@ var render = function render() {
           return val;
         });
         _vm.priceFilter = $event.target.multiple ? $$selectedVal : $$selectedVal[0];
-      }, _vm.resetPagination]
+      }, _vm.fetchOrders]
     }
   }, [_c("option", {
     attrs: {
@@ -5440,7 +5406,7 @@ var render = function render() {
           return val;
         });
         _vm.quantityFilter = $event.target.multiple ? $$selectedVal : $$selectedVal[0];
-      }, _vm.resetPagination]
+      }, _vm.fetchOrders]
     }
   }, [_c("option", {
     attrs: {
@@ -5477,7 +5443,7 @@ var render = function render() {
           return val;
         });
         _vm.perPage = $event.target.multiple ? $$selectedVal : $$selectedVal[0];
-      }, _vm.resetPagination]
+      }, _vm.fetchOrders]
     }
   }, [_c("option", {
     attrs: {
@@ -5501,10 +5467,10 @@ var render = function render() {
     }
   }, [_vm._v("100 per page")])])])]), _vm._v(" "), _c("table", {
     staticClass: "table table-bordered"
-  }, [_vm._m(0), _vm._v(" "), _c("tbody", [_vm._l(_vm.paginatedOrders, function (order, i) {
+  }, [_vm._m(0), _vm._v(" "), _c("tbody", [_vm._l(_vm.orders.data, function (order, i) {
     return _c("tr", {
       key: order.id
-    }, [_c("td", [_vm._v(_vm._s((_vm.currentPage - 1) * _vm.perPage + ++i))]), _vm._v(" "), _c("td", [_c("button", {
+    }, [_c("td", [_vm._v(_vm._s(_vm.orders.from + i))]), _vm._v(" "), _c("td", [_c("button", {
       staticClass: "btn btn-link p-0",
       attrs: {
         type: "button"
@@ -5515,25 +5481,25 @@ var render = function render() {
         }
       }
     }, [_vm._v("\n                        " + _vm._s(order.id) + "\n                    ")])]), _vm._v(" "), _c("td", [_vm._v(_vm._s(order.user ? order.user.name : ""))]), _vm._v(" "), _c("td", [_vm._v(_vm._s(order.user ? order.user.phone : ""))]), _vm._v(" "), _c("td", [_vm._v(_vm._s(order.user ? order.user.address : ""))]), _vm._v(" "), _c("td", [_vm._v(_vm._s(order.total_quantity))]), _vm._v(" "), _c("td", [_vm._v(_vm._s(order.total_price))])]);
-  }), _vm._v(" "), _vm.filteredOrders.length === 0 ? _c("tr", [_c("td", {
+  }), _vm._v(" "), _vm.loading ? _c("tr", [_vm._m(1)]) : _vm.orders.data.length === 0 ? _c("tr", [_c("td", {
     staticClass: "text-center",
     attrs: {
       colspan: "7"
     }
-  }, [_vm._v("No orders found")])]) : _vm._e()], 2)]), _vm._v(" "), _vm.filteredOrders.length > 0 ? _c("nav", {
+  }, [_vm._v("No orders found")])]) : _vm._e()], 2)]), _vm._v(" "), _vm.orders.data.length > 0 ? _c("nav", {
     staticClass: "mt-3"
   }, [_c("ul", {
     staticClass: "pagination justify-content-center"
   }, [_c("li", {
     staticClass: "page-item",
     "class": {
-      disabled: _vm.currentPage === 1
+      disabled: _vm.orders.current_page === 1
     }
   }, [_c("button", {
     staticClass: "page-link",
     on: {
       click: function click($event) {
-        _vm.currentPage--;
+        return _vm.changePage(_vm.orders.current_page - 1);
       }
     }
   }, [_vm._v("Previous")])]), _vm._v(" "), _vm._l(_vm.pages, function (page) {
@@ -5541,26 +5507,26 @@ var render = function render() {
       key: page,
       staticClass: "page-item",
       "class": {
-        active: _vm.currentPage === page
+        active: _vm.orders.current_page === page
       }
     }, [_c("button", {
       staticClass: "page-link",
       on: {
         click: function click($event) {
-          _vm.currentPage = page;
+          return _vm.changePage(page);
         }
       }
     }, [_vm._v(_vm._s(page))])]);
   }), _vm._v(" "), _c("li", {
     staticClass: "page-item",
     "class": {
-      disabled: _vm.currentPage === _vm.totalPages
+      disabled: _vm.orders.current_page === _vm.orders.last_page
     }
   }, [_c("button", {
     staticClass: "page-link",
     on: {
       click: function click($event) {
-        _vm.currentPage++;
+        return _vm.changePage(_vm.orders.current_page + 1);
       }
     }
   }, [_vm._v("Next")])])], 2)]) : _vm._e(), _vm._v(" "), _vm.modalShow ? _c("OrderModal", {
@@ -5572,9 +5538,7 @@ var render = function render() {
         _vm.modalShow = false;
       }
     }
-  }) : _vm._e(), _vm._v(" "), _vm.loading ? _c("div", {
-    staticClass: "text-center my-3"
-  }, [_vm._m(1)]) : _vm._e()], 1);
+  }) : _vm._e()], 1);
 };
 var staticRenderFns = [function () {
   var _vm = this,
@@ -5583,14 +5547,19 @@ var staticRenderFns = [function () {
 }, function () {
   var _vm = this,
     _c = _vm._self._c;
-  return _c("div", {
+  return _c("td", {
+    staticClass: "text-center",
+    attrs: {
+      colspan: "7"
+    }
+  }, [_c("div", {
     staticClass: "spinner-border text-primary",
     attrs: {
       role: "status"
     }
   }, [_c("span", {
     staticClass: "visually-hidden"
-  }, [_vm._v("Loading...")])]);
+  }, [_vm._v("Loading...")])])]);
 }];
 render._withStripped = true;
 

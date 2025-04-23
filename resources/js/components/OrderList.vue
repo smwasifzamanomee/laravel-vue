@@ -8,11 +8,11 @@
                     class="form-control" 
                     placeholder="Search by name, phone, or address" 
                     v-model="searchQuery"
-                    @input="resetPagination"
+                    @input="debouncedSearch"
                 >
             </div>
             <div class="col-md-3">
-                <select class="form-control" v-model="priceFilter" @change="resetPagination">
+                <select class="form-control" v-model="priceFilter" @change="fetchOrders">
                     <option value="">All Prices</option>
                     <option value="0-100">$0 - $100</option>
                     <option value="100-500">$100 - $500</option>
@@ -22,7 +22,7 @@
                 </select>
             </div>
             <div class="col-md-3">
-                <select class="form-control" v-model="quantityFilter" @change="resetPagination">
+                <select class="form-control" v-model="quantityFilter" @change="fetchOrders">
                     <option value="">All Quantities</option>
                     <option value="0-10">1 - 10 items</option>
                     <option value="10-50">10 - 50 items</option>
@@ -30,7 +30,7 @@
                 </select>
             </div>
             <div class="col-md-2">
-                <select class="form-control" v-model="perPage" @change="resetPagination">
+                <select class="form-control" v-model="perPage" @change="fetchOrders">
                     <option value="5">5 per page</option>
                     <option value="10">10 per page</option>
                     <option value="25">25 per page</option>
@@ -54,13 +54,13 @@
                 </tr>
             </thead>
             <tbody>   
-                <tr v-for="(order, i) in paginatedOrders" :key="order.id">
-                    <td>{{ (currentPage - 1) * perPage + ++i }}</td>
+                <tr v-for="(order, i) in orders.data" :key="order.id">
+                    <td>{{ orders.from + i }}</td>
                     <td>
                         <button 
                             type="button" 
                             class="btn btn-link p-0" 
-                            v-on:click="onClickShowDetails(order.id)"
+                            @click="onClickShowDetails(order.id)"
                         >
                             {{ order.id }}
                         </button>
@@ -71,30 +71,37 @@
                     <td>{{ order.total_quantity }}</td>
                     <td>{{ order.total_price }}</td>
                 </tr>   
-                <tr v-if="filteredOrders.length === 0">
+                <tr v-if="loading">
+                    <td colspan="7" class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr v-else-if="orders.data.length === 0">
                     <td colspan="7" class="text-center">No orders found</td>
                 </tr>
             </tbody>
         </table>
 
         <!-- Pagination -->
-        <nav v-if="filteredOrders.length > 0" class="mt-3">
+        <nav v-if="orders.data.length > 0" class="mt-3">
             <ul class="pagination justify-content-center">
-                <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                    <button class="page-link" @click="currentPage--">Previous</button>
+                <li class="page-item" :class="{ disabled: orders.current_page === 1 }">
+                    <button class="page-link" @click="changePage(orders.current_page - 1)">Previous</button>
                 </li>
                 
                 <li 
                     class="page-item" 
                     v-for="page in pages" 
                     :key="page"
-                    :class="{ active: currentPage === page }"
+                    :class="{ active: orders.current_page === page }"
                 >
-                    <button class="page-link" @click="currentPage = page">{{ page }}</button>
+                    <button class="page-link" @click="changePage(page)">{{ page }}</button>
                 </li>
                 
-                <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                    <button class="page-link" @click="currentPage++">Next</button>
+                <li class="page-item" :class="{ disabled: orders.current_page === orders.last_page }">
+                    <button class="page-link" @click="changePage(orders.current_page + 1)">Next</button>
                 </li>
             </ul>
         </nav>
@@ -102,95 +109,47 @@
         <OrderModal 
             v-if="modalShow" 
             :order_items="order_items" 
-            v-on:close="modalShow = false"
+            @close="modalShow = false"
         />
-        
-        <div v-if="loading" class="text-center my-3">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-        </div>
     </div>
 </template>
 
 <script>
 import OrderModal from './OrderModal.vue';
+import _ from 'lodash';
 
 export default {
     data() {
         return {
+            orders: {
+                data: [],
+                current_page: 1,
+                from: 1,
+                last_page: 1,
+                per_page: 5,
+                total: 0
+            },
             order_items: [],
             modalShow: false,
             loading: false,
             searchQuery: '',
             priceFilter: '',
             quantityFilter: '',
-            currentPage: 1,
             perPage: 5
         }
     },
     components: {
         OrderModal
     },
-    props: {
-        order_lists: {
-            type: Array,
-            required: true
-        }
+    created() {
+        this.fetchOrders();
     },
     computed: {
-        filteredOrders() {
-            let filtered = this.order_lists;
-            
-            // Apply search filter
-            if (this.searchQuery) {
-                const query = this.searchQuery.toLowerCase();
-                filtered = filtered.filter(order => 
-                    (order.user?.name?.toLowerCase().includes(query) ||
-                    (order.user?.phone?.includes(query)) ||
-                    (order.user?.address?.toLowerCase().includes(query)) ||
-                    (order.id.toString().includes(query))));
-            }
-            
-            // Apply price filter
-            if (this.priceFilter) {
-                const [min, max] = this.priceFilter.split('-').map(Number);
-                if (this.priceFilter.endsWith('+')) {
-                    filtered = filtered.filter(order => order.total_price >= min);
-                } else {
-                    filtered = filtered.filter(order => 
-                        order.total_price >= min && order.total_price <= max);
-                }
-            }
-            
-            // Apply quantity filter
-            if (this.quantityFilter) {
-                const [min, max] = this.quantityFilter.split('-').map(Number);
-                if (this.quantityFilter.endsWith('+')) {
-                    filtered = filtered.filter(order => order.total_quantity >= min);
-                } else {
-                    filtered = filtered.filter(order => 
-                        order.total_quantity >= min && order.total_quantity <= max);
-                }
-            }
-            
-            return filtered;
-        },
-        paginatedOrders() {
-            const start = (this.currentPage - 1) * this.perPage;
-            const end = start + this.perPage;
-            return this.filteredOrders.slice(start, end);
-        },
-        totalPages() {
-            return Math.ceil(this.filteredOrders.length / this.perPage);
-        },
         pages() {
             const pages = [];
-            // Show up to 5 page buttons around current page
-            let start = Math.max(1, this.currentPage - 2);
-            let end = Math.min(this.totalPages, start + 4);
+            let start = Math.max(1, this.orders.current_page - 2);
+            let end = Math.min(this.orders.last_page, start + 4);
             
-            // Adjust if we're near the start
             if (end - start < 4 && start > 1) {
                 start = Math.max(1, end - 4);
             }
@@ -203,11 +162,31 @@ export default {
         }
     },
     methods: {
+        fetchOrders() {
+            this.loading = true;
+            
+            const params = {
+                page: this.orders.current_page,
+                per_page: this.perPage,
+                search: this.searchQuery,
+                price_filter: this.priceFilter,
+                quantity_filter: this.quantityFilter
+            };
+            
+            axios.get('/order', { params })
+                .then(response => {
+                    this.orders = response.data;
+                    this.loading = false;
+                })
+                .catch(error => {
+                    console.error("Error fetching orders:", error);
+                    this.loading = false;
+                });
+        },
         onClickShowDetails(id) {
             this.loading = true;
             this.modalShow = true;
             
-            // Fetch order items for this order ID
             axios.get(`/orders/items/${id}`)
                 .then(response => {
                     this.order_items = response.data;
@@ -218,14 +197,19 @@ export default {
                     this.loading = false;
                 });
         },
-        resetPagination() {
-            this.currentPage = 1;
-        }
+        changePage(page) {
+            if (page >= 1 && page <= this.orders.last_page) {
+                this.orders.current_page = page;
+                this.fetchOrders();
+            }
+        },
+        debouncedSearch: _.debounce(function() {
+            this.fetchOrders();
+        }, 500)
     },
     watch: {
-        currentPage(newVal) {
-            if (newVal < 1) this.currentPage = 1;
-            if (newVal > this.totalPages) this.currentPage = this.totalPages;
+        perPage() {
+            this.fetchOrders();
         }
     }
 }
