@@ -4,6 +4,8 @@ namespace App\Models\Checkout;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Checkout\Order;
+use App\Models\Admin\Product;
 
 class Order_items extends Model
 {
@@ -21,11 +23,11 @@ class Order_items extends Model
 
     public function order()
     {
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(Order::class, 'order_id');
     }
 
     public function product()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Product::class, 'product_id');
     }
 }

@@ -44,5 +44,6 @@ Route::post('/products/update/{id}', 'Admin\Product\ProductController@update')->
 Route::get('/products/delete/{id}', 'Admin\Product\ProductController@destroy')->name('products.delete');
 
 Route::get('/order', 'Admin\Order\OrderController@index')->name('order');
+Route::get('/orders/items/{orderId}', 'Admin\Order\OrderController@getOrderItems')->name('orders.items');
 
 // Route::resources('product', 'Admin\Product\ProductController');
