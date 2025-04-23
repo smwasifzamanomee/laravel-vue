@@ -23,12 +23,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/cart/decrease/{id}', 'Home\Cart\CartController@decrease')->name('cart.decrease');
     Route::get('/cart/delete/{id}', 'Home\Cart\CartController@delete')->name('cart.delete');
     Route::post('/cart/checkout', 'Home\Cart\CartController@checkout')->name('cart.checkout');
-    Route::get('/about', 'Home\Cart\CartController@about')->name('cart.about');
 });
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index');
+Route::get('/about', 'Home\Cart\CartController@about')->name('cart.about');
+
+Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/category', 'Admin\Category\CategoryController@index');
 Route::post('/category/store', 'Admin\Category\CategoryController@store')->name('category.store');
 Route::get('/category/delete/{id}', 'Admin\Category\CategoryController@destroy')->name('category.delete');
@@ -41,5 +42,7 @@ Route::post('/products/store', 'Admin\Product\ProductController@store')->name('p
 Route::get('/products/edit/{id}', 'Admin\Product\ProductController@edit')->name('products.edit');
 Route::post('/products/update/{id}', 'Admin\Product\ProductController@update')->name('products.update');
 Route::get('/products/delete/{id}', 'Admin\Product\ProductController@destroy')->name('products.delete');
+
+Route::get('/order', 'Admin\Order\OrderController@index')->name('order');
 
 // Route::resources('product', 'Admin\Product\ProductController');

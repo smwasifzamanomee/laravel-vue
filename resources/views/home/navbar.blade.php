@@ -1,8 +1,14 @@
 <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav">
-    <li class="nav-item active">
-        <a class="nav-link" href="/home">Home <span class="sr-only">(current)</span></a>
+    <li class="nav-item {{ Request::is('/') || Request::is('home') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ Auth::check() ? route('home') : url('/') }}">
+            Home
+            @if(Request::is('/') || Request::is('home'))
+                <span class="sr-only">(current)</span>
+            @endif
+        </a>
     </li>
+
     <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true"> <span class="nav-label">Pages <span class="caret"></span></a>
         <ul class="dropdown-menu">
