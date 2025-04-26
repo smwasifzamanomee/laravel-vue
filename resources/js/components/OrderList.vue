@@ -119,6 +119,7 @@ import OrderModal from './OrderModal.vue';
 import _ from 'lodash';
 
 export default {
+    name:'OrderList',
     data() {
         return {
             orders: {
